@@ -1,6 +1,7 @@
 package com.MrFix30.Controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.MrFix30.Model.User;
@@ -39,21 +41,45 @@ public class UserController {
            }
        } //
        @PostMapping("/user/post")
-       public ResponseEntity<String> postcomplaints(@RequestBody User users){
+       public ResponseEntity<String> postcomplaints(@RequestBody Map<String,String> users){
     	   try {
-    	       userservice.userregister(users);
+    		   User userdata=new User();
+    		   userdata.setUser_contact(users.get("contact"));
+    		   userdata.setUser_email(users.get("email"));
+    		   userdata.setUser_name(users.get("name"));
+    		   userdata.setUser_pass(users.get("pass"));
+    	       userservice.userregister(userdata);
     	      
 	          return ResponseEntity.ok("User Registered Succesfully");
     	   }catch(Exception e) {
     		   return ResponseEntity.status(HttpStatus.CONFLICT).body("Data may be already exists");
     	   }
        }
-       
+       @GetMapping("/searchusers")
+       public ResponseEntity<Object> searchUser(@RequestParam ("term")String user_name){
+    	    try {
+    	    	  
+    	    	  return ResponseEntity.ok(userservice.usersearch(user_name));
+    	    }catch(NoSuchElementException e) {
+    	    	 return ResponseEntity.notFound().build();
+    	    }
+    	   
+       }
+       @GetMapping("/user/{user_id}")
+       public ResponseEntity<Object> searchByUserId(@PathVariable int user_id){
+    	   try {
+    		   System.out.println("Entered the user search by Id");
+    		   return ResponseEntity.ok(userservice.userSearchId(user_id));
+    	   }catch(NoSuchElementException e) {
+    		   return ResponseEntity.notFound().build();
+    	   }
+       }
        @PatchMapping("/{userId}")
-       public ResponseEntity<String> updateUser(@PathVariable int userId, @RequestBody User updatedUserData) {
+       public ResponseEntity<Object> updateUser(@PathVariable int userId, @RequestBody User updatedUserData) {
            try {
-               userservice.updateUser(userId, updatedUserData);
-               return ResponseEntity.ok("User updated successfully");
+        	   System.out.println(updatedUserData);
+              
+               return ResponseEntity.ok(userservice.updateUser(userId, updatedUserData));
            } catch (NoSuchElementException e) {
                return ResponseEntity.notFound().build();
            }

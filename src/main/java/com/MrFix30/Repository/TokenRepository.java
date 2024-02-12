@@ -18,4 +18,5 @@ public interface TokenRepository extends JpaRepository<Token,Integer>{
 
     @Query(value = "SELECT * FROM token t WHERE t.is_token_used = true", nativeQuery = true)
     List<Token> findUsedTokens();
+    void deleteByToken(String tokenString);
 }

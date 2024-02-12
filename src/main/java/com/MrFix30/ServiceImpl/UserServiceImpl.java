@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
         );
     }
 	@Override
-     public void updateUser(int  userId, User updatedUserData) {
+     public Object updateUser(int  userId, User updatedUserData) {
     	User user = userrepo.findById(userId)
                 .orElseThrow(NoSuchElementException::new);
 
@@ -68,9 +68,33 @@ public class UserServiceImpl implements UserService {
         if (updatedUserData.getUser_email()!= null) {
             user.setUser_email(updatedUserData.getUser_email());
         }
+        if(updatedUserData.getUser_pass()!=null) {
+        	user.setUser_pass(updatedUserData.getUser_pass());
+        }
+        if(updatedUserData.getUser_contact()!=null){
+        	user.setUser_contact(updatedUserData.getUser_contact());
+        }
         // Add other fields to update
 
-        userrepo.save(user);
+        return userrepo.save(user);
     }
+	@Override
+	public Object usersearch(String user_name) {
+		// TODO Auto-generated method stub
+		return userrepo.findByUserName(user_name);
+	}
+	@Override
+	public boolean verifycredential(String user_name, String user_pass) {
+		System.out.println(user_name+" "+user_pass);
+		boolean check=userrepo.findByUserNameAndUserPass(user_name, user_pass).isPresent();
+		System.out.println(check);
+		return check;
+		
+	}
+	@Override
+	public Object userSearchId(int user_id) {
+		
+		return userrepo.findById(user_id);
+	}
  
 }

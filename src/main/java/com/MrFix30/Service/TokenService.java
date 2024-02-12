@@ -8,4 +8,5 @@ public interface TokenService {
 	public boolean isTokenValid(String tokenString);
 	public Token getTokenByTokenString(String tokenString);
 	public void cleanUpExpiredTokens();
+	void deleteusedToken(String tokens);
 }
