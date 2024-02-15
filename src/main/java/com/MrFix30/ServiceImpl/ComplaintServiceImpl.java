@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.MrFix30.Model.Complaints;
@@ -20,6 +19,7 @@ import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class ComplaintServiceImpl implements ComplaintService {
+	private static final String systemUser="admin";
 	@Autowired
 	private ComplaintRepository comrepo;
 
@@ -62,7 +62,7 @@ public class ComplaintServiceImpl implements ComplaintService {
 	public List<Integer> getDatas(String role, String user_name) {
 		Page<Complaints> complaintsPage;
 
-		if ("admin".equals(role)) {
+		if (systemUser.equals(role)) {
 			complaintsPage = comrepo.findAll(PageRequest.of(0, Integer.MAX_VALUE));
 		} else {
 			complaintsPage = comrepo.findByComplainant(user_name, PageRequest.of(0, Integer.MAX_VALUE));
@@ -88,7 +88,7 @@ public class ComplaintServiceImpl implements ComplaintService {
 
 	@Override
 	public List<Complaints> recentComplaints(String role, String user_name) {
-		if ("admin".equals(user_name) && "admin".equals(role))
+		if (systemUser.equals(user_name) && systemUser.equals(role))
 			return comrepo.findLast3Complaints();
 		return comrepo.findByComplainant(user_name, PageRequest.of(0, 3)).getContent();
 	}
@@ -112,5 +112,22 @@ public class ComplaintServiceImpl implements ComplaintService {
 		Pageable pageable = PageRequest.of(page - 1, size); // Adjust page number to be zero-based
 		return comrepo.findByComplainant(user_name, pageable);
 	}
+
+	@Override
+	public List<Complaints> getReportSpecfiedUser(String user_name) {
+		try {
+	        List<Complaints> complaints = comrepo.findByComplainantReport(user_name);
+
+	        if (complaints.isEmpty()) {
+	            return null;
+	        }
+
+	        return complaints;
+	    } catch (Exception e) {
+	      
+	        return null;
+	     }	
+		
+      }
 
 }

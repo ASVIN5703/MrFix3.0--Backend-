@@ -68,13 +68,23 @@
 			<artifactId>jaxb-runtime</artifactId>
 			<scope>provided</scope>
 		</dependency>
-    
- 	<dependency> 
-		 
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<optional>true</optional>
-		</dependency>
+			
+		<dependency>
+	   	<groupId>org.projectlombok</groupId>
+		<artifactId>lombok</artifactId>
+		
+		<scope>provided</scope>
+		<exclusions>
+        <exclusion>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </exclusion>
+    </exclusions>
+	</dependency>
+
+
+
+	
        <dependency>
     <groupId>com.github.librepdf</groupId>
     <artifactId>openpdf</artifactId>

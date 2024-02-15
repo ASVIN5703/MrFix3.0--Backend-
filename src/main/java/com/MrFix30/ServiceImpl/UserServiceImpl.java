@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import org.apache.juli.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,12 +13,21 @@ import com.MrFix30.Repository.UserRepository;
 import com.MrFix30.Service.UserService;
 
 import CustomExceptions.DataAlreadyExists;
+import lombok.extern.slf4j.Slf4j;
+
+
+
+
 
 @Service
+@Slf4j 
 public class UserServiceImpl implements UserService {
+	 private final UserRepository userrepo;
     @Autowired
-    private UserRepository userrepo;
-    ///adding user details
+     public UserServiceImpl(UserRepository userrepo) {
+    	 this.userrepo=userrepo;
+    }
+  
 	@Override
 	public String userregister(User user) {
 	    Optional<User> existingUser = userrepo.findByUserName(user.getUser_name());
@@ -38,7 +48,7 @@ public class UserServiceImpl implements UserService {
 	}
 	@Override
 	public boolean usercheck(User user) {
-		// TODO Auto-generated method stub
+		
 		return userrepo.findByUserName(user.getUser_name()).isPresent();
 	}
 	@Override
@@ -52,7 +62,7 @@ public class UserServiceImpl implements UserService {
             user -> userrepo.delete(user),
             () -> {
                 throw new NoSuchElementException("User not found with ID: " + userId);
-                // Handle this exception based on your application's requirements
+               
             }
         );
     }
@@ -73,21 +83,22 @@ public class UserServiceImpl implements UserService {
         }
         if(updatedUserData.getUser_contact()!=null){
         	user.setUser_contact(updatedUserData.getUser_contact());
-        }
-        // Add other fields to update
-
+        }  
+      
+     
         return userrepo.save(user);
     }
 	@Override
 	public Object usersearch(String user_name) {
-		// TODO Auto-generated method stub
+		
 		return userrepo.findByUserName(user_name);
 	}
 	@Override
 	public boolean verifycredential(String user_name, String user_pass) {
 		System.out.println(user_name+" "+user_pass);
 		boolean check=userrepo.findByUserNameAndUserPass(user_name, user_pass).isPresent();
-		System.out.println(check);
+        
+
 		return check;
 		
 	}

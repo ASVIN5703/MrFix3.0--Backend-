@@ -3,7 +3,6 @@ package com.MrFix30.Service;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
 
 import com.MrFix30.Model.Complaints;
 
@@ -14,7 +13,7 @@ public interface ComplaintService {
 //	List<Complaints> getComplaints();
 
 	
-
+    List<Complaints> getReportSpecfiedUser(String user_name);
 	Complaints updateComplaintStatus(int complaintId, String newStatus);
 
 	Complaints register(Complaints complaint);

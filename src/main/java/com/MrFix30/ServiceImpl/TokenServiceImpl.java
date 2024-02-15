@@ -1,10 +1,10 @@
 package com.MrFix30.ServiceImpl;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,19 +17,29 @@ import com.MrFix30.Service.TokenService;
 
 @Service
 public class TokenServiceImpl implements TokenService {
+	private static final int TOKEN_EXPIRATION_MINUTES = 5;
+
+	private final TokenRepository tokenRepository;
+	private final AdminRepository adminRepository;
+
 	@Autowired
-	private TokenRepository tokenRepository;
-	@Autowired
-	private AdminRepository adminrepo;
+	public TokenServiceImpl(TokenRepository tokenRepository, AdminRepository adminRepository) {
+		this.tokenRepository = tokenRepository;
+		this.adminRepository = adminRepository;
+	}
 
 	@Override
 	public Token generateToken(Admin adminer) {
 		Token token = new Token();
-		Random rand = new Random();
-		String temptoken = "%04d".formatted(rand.nextInt(10000));
+		SecureRandom secureRandom = new SecureRandom();
+		byte[] randomBytes = new byte[16];
+		secureRandom.nextBytes(randomBytes);
+		String temptoken = bytesToHex(randomBytes);
 		token.setToken(temptoken);
 		LocalDateTime currentTime = LocalDateTime.now();
-		LocalDateTime expiryTime = currentTime.plus(5, ChronoUnit.MINUTES); // Set expiry time as 5 minutes from now
+		LocalDateTime expiryTime = currentTime.plus(TOKEN_EXPIRATION_MINUTES, ChronoUnit.MINUTES); // Set expiry time as
+																									// 5 minutes from
+																									// now
 		token.setExpiryDateTime(expiryTime);
 		token.setAdmin(adminer);
 		return tokenRepository.save(token);
@@ -40,22 +50,25 @@ public class TokenServiceImpl implements TokenService {
 	public boolean isTokenValid(String tokenString) {
 		Token token = tokenRepository.findByToken(tokenString);
 		System.out.println(token + "tokenrow");
-		
+
 		return token != null && !token.isTokenUsed() && !token.getExpiryDateTime().isBefore(LocalDateTime.now());
 	}
-    @Override
+
+	@Override
 	public void deleteusedToken(String tokens) {
 		Token token1 = tokenRepository.findByToken(tokens);
-		if(token1!=null)tokenRepository.delete(token1);
-		
+		if (token1 != null)
+			tokenRepository.delete(token1);
+
 	}
 
 	@Override
 	public Token getTokenByTokenString(String tokenString) {
 		Token token = tokenRepository.findByToken(tokenString);
-		token.setTokenUsed(true);
-		if (token != null)
-			tokenRepository.save(token);
+		if (token != null) {
+	        token.setTokenUsed(true);
+	        tokenRepository.save(token);
+	    }
 		return token;
 	}
 
@@ -78,5 +91,13 @@ public class TokenServiceImpl implements TokenService {
 			// adminRepository.delete(admin);
 		}
 
+	}
+
+	private String bytesToHex(byte[] bytes) {
+		StringBuilder hexStringBuilder = new StringBuilder();
+		for (byte b : bytes) {
+			hexStringBuilder.append(String.format("%02x", b));
+		}
+		return hexStringBuilder.toString();
 	}
 }
